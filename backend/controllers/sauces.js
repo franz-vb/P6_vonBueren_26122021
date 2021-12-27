@@ -36,6 +36,12 @@ exports.getOneThing = (req, res, next) => {
   );
 };
 
+exports.addLike = (req, res, next) => {
+    Thing.updateOne({ _id: req.params.id }, { ...thingObject, _id: req.params.id, like: 1, usersLiked:[...usersLiked, req.auth.userId] })
+      .then(() => res.status(200).json({ message: 'Objet modifié !'}))
+      .catch(error => res.status(400).json({ error }));
+}
+
 exports.modifyThing = (req, res, next) => {
     const thingObject = req.file ?
       {
@@ -50,18 +56,21 @@ exports.modifyThing = (req, res, next) => {
   exports.deleteThing = (req, res, next) => {
     Thing.findOne({ _id: req.params.id })
       .then(thing => {
-        /* nous utilisons le fait de savoir que notre URL d'image contient un segment /images/ pour séparer le nom de fichier  */
-        const filename = thing.imageUrl.split('/images/')[1];
-        /*nous utilisons ensuite la fonction unlink du package fs pour supprimer ce fichier, 
-        en lui passant le fichier à supprimer et le callback à exécuter une fois ce fichier supprimé ;*/
-        fs.unlink(`images/${filename}`, () => {
+          if (!thing) {
+                res.status(404).json({error: new Error('No such Thing!')});
+          }
+          if (thing.userId !== req.auth.userId) {
+                res.status(400).json({error: new Error('Unauthorized request!')});
+          }
+          const filename = thing.imageUrl.split('/images/')[1];
+          fs.unlink(`images/${filename}`, () => {
           Thing.deleteOne({ _id: req.params.id })
             .then(() => res.status(200).json({ message: 'Objet supprimé !'}))
             .catch(error => res.status(400).json({ error }));
-        });
+          });
       })
       .catch(error => res.status(500).json({ error }));
-  };
+};
 
 exports.getAllSauces = (req, res, next) => {
   Thing.find().then( //retourne tous les Things
