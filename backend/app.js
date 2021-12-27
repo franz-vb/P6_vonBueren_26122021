@@ -26,8 +26,8 @@ app.use((req, res, next) => {
     next(); // méthode next permet à chaque middleware de passer l'exécution au middleware suivant
   });
 
-/*app.use('/images', express.static(path.join(__dirname, 'images')));//Dis à Express de gérer la route vers images afin de pouvoir récupérer les images envoyées par l'utilisateur  
-app.use('/api/sauces', saucesRoutes);*/ 
+app.use('/images', express.static(path.join(__dirname, 'images')));//Dis à Express de gérer la route vers images afin de pouvoir récupérer les images envoyées par l'utilisateur*/   
+app.use('/api/sauces', saucesRoutes);
 app.use('/api/auth', userRoutes);
 
 module.exports = app;
