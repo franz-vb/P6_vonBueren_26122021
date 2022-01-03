@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router(); /*La méthode express.Router() vous permet de créer des routeurs séparés 
                                  pour chaque route principale de votre application – 
-                                 vous y enregistrez ensuite les routes individuelles.*/
+                                 vous y enregistrez ensuite les routes individuelles...*/
                                  
 const auth = require('../middleware/auth');
 const multer = require('../middleware/multer-config');
