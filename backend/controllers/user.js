@@ -1,15 +1,25 @@
 const bcrypt = require('bcrypt'); //bcrypt  est un package de cryptage
 const jwt = require('jsonwebtoken');
+const MaskData = require('maskdata');
+
 
 /* Import du model user */ 
 const User = require('../models/User');
 
+const emailMask2Options = {
+  maskWith: "*", 
+  unmaskedStartCharactersBeforeAt: 3,
+  unmaskedEndCharactersAfterAt: 4,
+  maskAtTheRate: false
+};
+
 exports.signup = (req, res, next) => {
+  const maskEmail = MaskData.maskEmail2(req.body.email, emailMask2Options);
     bcrypt.hash(req.body.password, 10) /*La méthode  hash()  de bcrypt crée un hash crypté des mots de passe de vos utilisateurs 
                                         pour les enregistrer de manière sécurisée dans la base de données.*/
       .then(hash => {
         const user = new User({
-          email: req.body.email,
+          email: maskEmail,
           password: hash
         });
         user.save()
@@ -20,7 +30,7 @@ exports.signup = (req, res, next) => {
   };
 
   exports.login = (req, res, next) => {
-    User.findOne({ email: req.body.email })
+    User.findOne({ email: MaskData.maskEmail2(req.body.email, emailMask2Options)})
       .then(user => {
         if (!user) {
           return res.status(401).json({ error: 'Utilisateur non trouvé !' });
@@ -46,3 +56,4 @@ exports.signup = (req, res, next) => {
       })
       .catch(error => res.status(500).json({ error }));
   };
+

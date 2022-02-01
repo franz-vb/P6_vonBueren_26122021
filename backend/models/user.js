@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const uniqueValidator = require('mongoose-unique-validator');
 const validate = require('mongoose-validator')
 
-const regex = /^\w+([.-]?\w+)@\w+([.-]?\w+)(.\w{2,3})+$/;
+const regex = /^[a-zA-Z0-9_*.]+@[a-zA-Z0-9_*]+([.-]?[a-zA-Z0-9_*]+)(.\w{2,3})+$/;
 
 const emailValidator = [
   validate({

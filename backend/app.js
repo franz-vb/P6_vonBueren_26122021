@@ -6,14 +6,44 @@ const mongoose = require('mongoose'); /* Le package Mongoose facilite les intera
 const saucesRoutes = require('./routes/sauces'); // routeur
 const userRoutes = require('./routes/user');
 const path = require('path');/* Permet de créer une route vers notre dossier images */
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+
+const limiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+})
+
+
 
 // Connecter l'api à la data base
+
 mongoose.connect('mongodb+srv://test:R6rhjkDBdi672HDR@cluster0.tj8rw.mongodb.net/mydb?retryWrites=true&w=majority',
   { useNewUrlParser: true,
     useUnifiedTopology: true })
   .then(() => console.log('Connexion à MongoDB réussie !'))
   .catch(() => console.log('Connexion à MongoDB échouée !'));
 
+// Sécurise les headers
+app.use(helmet.contentSecurityPolicy());
+app.use(helmet.crossOriginEmbedderPolicy());
+app.use(helmet.crossOriginOpenerPolicy());
+app.use(helmet.dnsPrefetchControl());
+app.use(helmet.expectCt());
+app.use(helmet.frameguard());
+app.use(helmet.hidePoweredBy());
+app.use(helmet.hsts());
+app.use(helmet.ieNoOpen());
+app.use(helmet.noSniff());
+app.use(helmet.originAgentCluster());
+app.use(helmet.permittedCrossDomainPolicies());
+app.use(helmet.referrerPolicy());
+app.use(helmet.xssFilter());
+
+// Apply the rate limiting middleware to all requests
+app.use(limiter)
 
 app.use(express.json());//Pour gérer la requête POST venant de l'application front-end, on a besoin d'en extraire le corps JSON
 
@@ -25,6 +55,8 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS'); // méthodes
     next(); // méthode next permet à chaque middleware de passer l'exécution au middleware suivant
   });
+
+
 
 app.use('/images', express.static(path.join(__dirname, 'images')));//Dis à Express de gérer la route vers images afin de pouvoir récupérer les images envoyées par l'utilisateur*/   
 app.use('/api/sauces', saucesRoutes);
