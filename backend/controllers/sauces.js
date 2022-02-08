@@ -82,8 +82,21 @@ exports.addLike = (req, res, next) => {
 };
 
 exports.modifySauce = (req, res, next) => {
+  Sauce.findOne({ _id: req.params.id })
+  .then((sauce) => {
+    if (!sauce) {
+      return res.status(404).json({ error: "No such Sauce!"});
+    }
+    if (sauce.userId !== req.auth.userId) {
+      return res.status(401).json({ error: "Unauthorized request!" });
+    }
+    const filename = sauce.imageUrl.split("/images/")[1];
+    fs.unlink(`images/${filename}`, () => res.status(200).json({ message: "Image supprimée localement" }))
+  })
+  .catch((error) => res.status(500).json({ error }));
   const sauceObject = req.file
     ? {
+     
         ...JSON.parse(req.body.sauce),
         imageUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename}`,
       }
